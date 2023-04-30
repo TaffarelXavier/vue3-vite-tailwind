@@ -18,12 +18,12 @@ function getDeviceType() {
 }
 
 function getWhatsAppUrl(numero, mensagem) {
-    const encodedMessage = encodeURIComponent(mensagem);
+    // const encodedMessage = encodeURIComponent(mensagem);
     const baseUrl = ['pc','web'].includes(getDeviceType())
         ? 'https://web.whatsapp.com/send/'
         : 'https://api.whatsapp.com/send/';
 
-    return `${baseUrl}?phone=${numero}&text=${encodedMessage}`;
+    return `${baseUrl}?phone=${numero}&text=${mensagem}`;
 }
 
 

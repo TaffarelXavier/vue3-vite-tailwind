@@ -42,12 +42,13 @@
           </div>
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <button
+              <a
+                href="/login"
                 v-if="!isAuthenticated"
                 class="bg-indigo-500 text-white px-2 py-1 rounded-md hover:bg-indigo-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500"
               >
-                Sign in
-              </button>
+                Login
+              </a>
               <button
                 v-if="isAuthenticated"
                 @click="logout"
@@ -76,15 +77,26 @@ export default {
           to: "/",
         },
         {
+          name: "Atribuir Ligações",
+          to: "/users/2/atribuir-ligacoes",
+        },
+        {
+          name: "Meus Contatos",
+          to: "/users/2/edit",
+        },
+        {
           name: "Telefonar",
           to: "/telefonar",
+        },
+        {
+          name: "Configurações",
+          to: "/settings/options",
         },
       ],
     };
   },
   async beforeRouteUpdate(to, from) {
     const user = localStorage.getItem("user");
-    console.log(user);
   },
   mounted() {
     // Verifica se o token existe no localStorage

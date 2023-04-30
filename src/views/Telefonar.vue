@@ -37,7 +37,7 @@
         <input
           type="hidden"
           name="average_consumption"
-          :value="clienteSelecionado?.client.average_consumption"
+          :value="clienteSelecionado?.contact.average_consumption"
         />
         <!-- PRIMEIRA ROW -->
         <div class="grid my-3 grid-cols-3 gap-2">
@@ -71,7 +71,7 @@
               readonly
               name="cliente_codigo"
               label="CÓDIGO DO CLIENTE"
-              :value="clienteSelecionado?.client.id"
+              :value="clienteSelecionado?.contact.id"
             />
           </div>
           <div class="bg-gray-100 col-span-2">
@@ -79,7 +79,7 @@
               readonly
               name="cliente_nome"
               label="NOME DO CLIENTE"
-              :value="clienteSelecionado?.client.nome"
+              :value="clienteSelecionado?.contact.first_name"
             />
           </div>
         </div>
@@ -93,14 +93,14 @@
               required
               :fields-name="['id', 'name']"
               :data="cidades"
-              :dataSelected="{ id: clienteSelecionado?.client.city_id }"
+              :dataSelected="{ id: clienteSelecionado?.contact.city_id }"
             />
           </div>
           <div class="bg-gray-100 col-span-2">
             <silig-text-field
               name="endereco"
               label="ENDEREÇO"
-              :value="clienteSelecionado?.client.logradouro"
+              :value="clienteSelecionado?.contact.street"
             />
           </div>
         </div>
@@ -113,19 +113,19 @@
             <!-- GRUPO TELEFONE 1 -->
             <div
               class="flex justify-between items-center rounded-lg"
-              v-if="clienteSelecionado?.client.telefone1"
+              v-if="clienteSelecionado?.contact.phone1"
             >
               <input
                 readonly
                 type="text"
                 placeholder="Digite aqui"
-                :value="clienteSelecionado?.client.telefone1"
+                :value="clienteSelecionado?.contact.phone1"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
               <div class="flex items-center">
                 <a
                   class="rounded-full p-2"
-                  :href="`tel:${clienteSelecionado?.client.telefone1}`"
+                  :href="`tel:${clienteSelecionado?.contact.phone1}`"
                 >
                   <i class="fas fa-phone" style="font-size: 1.3rem"></i>
                 </a>
@@ -134,7 +134,7 @@
                   type="button"
                   @click="
                     () => {
-                      enviarWhatsApp(clienteSelecionado?.client.telefone1);
+                      enviarWhatsApp(clienteSelecionado?.contact.phone1);
                     }
                   "
                 >
@@ -148,7 +148,7 @@
             <!-- GRUPO TELEFONE 2 -->
             <div
               class="flex justify-between items-center rounded-lg"
-              v-if="clienteSelecionado?.client.telefone2"
+              v-if="clienteSelecionado?.contact.phone2"
             >
               <input
                 type="text"
@@ -209,11 +209,32 @@
         </div>
       </form>
     </div>
-    <div class="col-span-3">
+    <div class="col-span-4">
+      <div
+        v-if="!contacts.length"
+        class="mb-3 inline-flex w-full items-center rounded-lg bg-primary-100 px-6 py-5 text-base text-primary-700"
+        role="alert"
+      >
+        <span class="mr-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            class="h-5 w-5"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </span>
+        Não há ligações mais pendentes
+      </div>
       <table
         id="myTable"
-        v-show="clients.length > 0"
-        class="divide-y divide-gray-200"
+        v-show="contacts.length > 0"
+        class="divide-y divide-gray-200 border w-full"
       >
         <caption>
           <div
@@ -251,7 +272,7 @@
             </th>
             <th
               scope="col"
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
               MÉDIA
             </th>
@@ -259,12 +280,14 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
           <tr
-            v-for="client in clients"
-            :key="client.client.id"
-            :data-id="client.client.id"
+            v-for="contact in contacts"
+            :key="contact.contact.id"
+            :data-id="contact.contact.id"
+            title="Clique para selecionar"
+            class="hover:cursor-pointer"
             :class="{
               'bg-blue-500 text-white':
-                client.client.id == clienteSelecionado?.client.id,
+                contact.contact.id == clienteSelecionado?.contact.id,
             }"
           >
             <td
@@ -274,15 +297,15 @@
               <span
                 :class="{
                   'text-white font-extrabold':
-                    client.client.id == clienteSelecionado?.client.id,
+                    contact.contact.id == clienteSelecionado?.contact.id,
                 }"
-                >{{ client.client.nome }}</span
+                >{{ contact.contact.first_name }}</span
               >
             </td>
-            <td>
+            <td class="text-center">
               {{
-                client.client.average_consumption &&
-                parseInt(client.client.average_consumption)
+                contact.average_consumption &&
+                parseInt(contact.average_consumption)
               }}
             </td>
           </tr>
@@ -293,13 +316,19 @@
 </template>
 
 <script>
-import ListClients from "../../components/Telefonar/ListClients.vue";
-import SiligSelect from "../../components/SiligSelect.vue";
-import SiligDateField from "../../components/SiligDateField.vue";
-import SiligTextField from "../../components/SiligTextField.vue";
-import SiligTextAreaField from "../../components/SiligTextAreaField.vue";
+import ListClients from "../components/Telefonar/ListClients.vue";
+import SiligSelect from "../components/SiligSelect.vue";
+import SiligDateField from "../components/SiligDateField.vue";
+import SiligTextField from "../components/SiligTextField.vue";
+import SiligTextAreaField from "../components/SiligTextAreaField.vue";
 import { enviarMensagem } from "@/services/whatsapp";
-import { log, convertToObject, convertToMilliseconds } from "@/utils";
+import {
+  log,
+  convertToObject,
+  convertToMilliseconds,
+  mergeFields,
+} from "@/utils";
+import config from "@/config";
 
 import {
   fetchClients,
@@ -307,7 +336,6 @@ import {
   fetchVendedores,
   fetchCidades,
   postSiligResults,
-  postLigacoes,
 } from "@/services/http";
 
 const STATUS_TEM_INTERESSE_ID = 3;
@@ -332,7 +360,7 @@ export default {
       statusesTypes: [],
       vendedores: [],
       cidades: [],
-      clients: [],
+      contacts: [],
       userId: 2,
       isSubmitting: false,
     };
@@ -351,9 +379,9 @@ export default {
     $("#myTable tbody").on("click", "tr", function () {
       if (confirm("Deseja selecionar este cliente?")) {
         const clientId = $(this).data("id");
-        const client = me.clients.find((c) => c.client.id === clientId);
-        if (client) {
-          me.clienteSelecionado = client;
+        const contact = me.contacts.find((c) => c.contact.id === clientId);
+        if (contact) {
+          me.clienteSelecionado = contact;
           me.iniciarCronometro();
         }
       }
@@ -379,44 +407,51 @@ export default {
         const vendedor = ev.target.vendedor.value;
         const chronometer = ev.target.time.value;
         const fields = $(ev.target).serializeArray();
-        if (status_id) {
-          if (status_id == STATUS_TEM_INTERESSE_ID && !vendedor) {
-            alert(
-              "Quando você escolher a opção 'TEM INTERESSE', você deverá escolher um vendedor indicado."
-            );
-            return;
-          } else if (status_id == STATUS_CONTATO_REALIZADO_PELO_WHATSAPP) {
-            const data = await post("/ligacoes", {
-              cliente_id: cliente?.id,
-            });
-          }
+
+        if (status_id == STATUS_TEM_INTERESSE_ID && !vendedor) {
+          alert(
+            "Quando você escolher a opção 'TEM INTERESSE', você deverá escolher um vendedor indicado."
+          );
+          return;
         }
 
-        let cliente = Object.assign({}, this.clienteSelecionado);
+        if (status_id == STATUS_CONTATO_REALIZADO_PELO_WHATSAPP) {
+          const data = await post("/ligacoes", {
+            cliente_id: cliente?.id,
+          });
+        }
+
+        let contact = Object.assign({}, this.clienteSelecionado);
 
         this.isSubmitting = true;
 
         const data = await postSiligResults({
-          ...cliente,
+          ...contact,
           ...convertToObject(fields),
           tempo_ligacao: convertToMilliseconds(chronometer) || 0,
           user_id: me.userId,
-          client_id: cliente.client.id,
+          client_id: contact.contact.id,
           date: new Date().toISOString().replace("T", " ").split(".").shift(),
         });
 
-        log(data);
-
         if (data) {
           this.isSubmitting = false;
-          const newClients = [...this.clients];
 
-          this.clients = newClients.filter(
+          const contactsFiltrados = [...this.contacts];
+
+          this.contacts = contactsFiltrados.filter(
             (el) => el.id != this.clienteSelecionado.id
           );
+
           this.clienteSelecionado = this.pegarPrimeiroElemento();
-          me.iniciarCronometro();
-          if (this.clients.length <= 2) {
+
+          if (this.clienteSelecionado || this.contacts.length) {
+            me.iniciarCronometro();
+          }
+          else{
+            me.limparForm();
+          }
+          if (this.contacts.length <= 2) {
             this.fetchClients();
           }
         }
@@ -425,7 +460,7 @@ export default {
       }
     },
     pegarPrimeiroElemento() {
-      return this.clients[0];
+      return this.contacts[0];
     },
     limparForm() {
       this.stopTimer();
@@ -449,12 +484,21 @@ export default {
       this.currentTime = 0;
     },
     enviarWhatsApp(numero) {
-      const mensagem = "Olá, como posso te ajudar?";
-      enviarMensagem(numero, mensagem);
+      let mensagem = config.siligOptions.find(
+        (el) => el.option_name == "mensagem"
+      ).option_value;
+
+      config.user.sexo = config.user.sexo == "m" ? "o" : "a";
+      let outputText = mergeFields(mensagem, config.user);
+
+      outputText = outputText.replace(/\n\n/g, "%0A%0A");
+
+      outputText = encodeURIComponent(outputText);
+
+      enviarMensagem(numero, outputText);
     },
     async fetchClients() {
-      const clients = await fetchClients(this.userId);
-      this.clients = clients;
+      this.contacts = await fetchClients(this.userId);
     },
     async fetchStatuses() {
       const statusesTypes = await fetchStatuses();

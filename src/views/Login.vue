@@ -81,17 +81,29 @@
 <script>
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import http from "@/services/api";
 
 export default {
   setup() {
+
     const email = ref("");
     const password = ref("");
     const router = useRouter();
     const route = useRoute();
 
-    const login = () => {
-      window.user = email.value;
-      window.localStorage.setItem("user", email.value);
+    const login = async () => {
+      const data = { email: email.value, password: password.value };
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        url: "/auth",
+        data,
+      };
+      const response = await http.request(options);
+      const userData = response.data.data;
+      window.localStorage.setItem("data", JSON.stringify(userData));
       const redirectPath = route.query.redirect || "/telefonar";
       router.push(redirectPath);
     };
